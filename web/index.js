@@ -1,12 +1,12 @@
 // @ts-check
-import { join } from "path";
-import { readFileSync } from "fs";
 import express from "express";
+import { readFileSync } from "fs";
+import { join } from "path";
 import serveStatic from "serve-static";
-
-import shopify from "./shopify.js";
-import productCreator from "./product-creator.js";
 import PrivacyWebhookHandlers from "./privacy.js";
+import productCreator from "./product-creator.js";
+import shopify from "./shopify.js";
+import orderPaidHandler from "./webhooks/order-paid-webhook.js";
 
 const PORT = parseInt(
   process.env.BACKEND_PORT || process.env.PORT || "3000",
@@ -15,8 +15,8 @@ const PORT = parseInt(
 
 const STATIC_PATH =
   process.env.NODE_ENV === "production"
-    ? `${process.cwd()}/frontend/dist`
-    : `${process.cwd()}/frontend/`;
+    ? `${process.cwd()}/web/frontend/dist`
+    : `${process.cwd()}/web/frontend/`;
 
 const app = express();
 
@@ -69,8 +69,19 @@ app.post("/api/products", async (_req, res) => {
   res.status(status).send({ success: status === 200, error });
 });
 
+app.use("/webhooks", orderPaidHandler);
 app.use(shopify.cspHeaders());
 app.use(serveStatic(STATIC_PATH, { index: false }));
+
+app.post(
+  "/api/webhooks",
+  shopify.processWebhooks({
+    webhookHandlers: {
+      ORDERS_PAID: orderPaidHandler,
+      // tu peux ajouter d'autres webhooks ici
+    },
+  })
+);
 
 app.use("/*", shopify.ensureInstalledOnShop(), async (_req, res, _next) => {
   return res
