@@ -15,6 +15,10 @@
 # Dockerfile pour Shopify App Fly.io
 # -----------------------------
 
+# -----------------------------
+# Dockerfile pour Shopify App Fly.io
+# -----------------------------
+
 FROM node:18-alpine
 
 # -----------------------------
@@ -34,15 +38,13 @@ EXPOSE 8081
 WORKDIR /app
 
 # -----------------------------
-# Copier le backend et frontend
+# Copier tout le contenu de web/ (frontend + backend)
 # -----------------------------
-COPY web/backend ./backend
-COPY web/frontend ./frontend
+COPY web/ ./
 
 # -----------------------------
-# Installer backend
+# Installer backend (à la racine de web/)
 # -----------------------------
-WORKDIR /app/backend
 RUN npm install
 
 # -----------------------------
@@ -53,7 +55,7 @@ RUN npm install
 RUN npm run build
 
 # -----------------------------
-# Lancer le backend (Node.js) 
+# Lancer le backend (Node.js)
 # -----------------------------
-WORKDIR /app/backend
-CMD ["npm", "run", "serve"]
+WORKDIR /app
+CMD ["node", "index.js"]
