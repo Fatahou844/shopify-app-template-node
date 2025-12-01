@@ -11,37 +11,49 @@
 
 # Dockerfile pour Shopify App avec frontend + backend
 
+# -----------------------------
+# Dockerfile pour Shopify App Fly.io
+# -----------------------------
+
 FROM node:18-alpine
 
+# -----------------------------
 # Variables d'environnement Shopify
+# -----------------------------
 ARG SHOPIFY_API_KEY
 ENV SHOPIFY_API_KEY=$SHOPIFY_API_KEY
 
+# -----------------------------
 # Exposer le port backend
+# -----------------------------
 EXPOSE 8081
 
+# -----------------------------
 # Définir le dossier de travail
+# -----------------------------
 WORKDIR /app
 
-# Copier tout le backend et frontend
+# -----------------------------
+# Copier le backend et frontend
+# -----------------------------
 COPY web/backend ./backend
 COPY web/frontend ./frontend
 
-########################
+# -----------------------------
 # Installer backend
-########################
+# -----------------------------
 WORKDIR /app/backend
 RUN npm install
 
-########################
-# Installer et build frontend
-########################
+# -----------------------------
+# Installer et builder frontend
+# -----------------------------
 WORKDIR /app/frontend
 RUN npm install
 RUN npm run build
 
-########################
+# -----------------------------
 # Lancer le backend (Node.js)
-########################
+# -----------------------------
 WORKDIR /app/backend
 CMD ["npm", "run", "serve"]
