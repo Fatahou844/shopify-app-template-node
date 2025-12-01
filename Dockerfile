@@ -53,7 +53,7 @@ RUN npm install
 RUN npm run build
 
 # -----------------------------
-# Lancer le backend (Node.js)
+# Lancer le backend (Node.js) 
 # -----------------------------
 WORKDIR /app/backend
 CMD ["npm", "run", "serve"]
