@@ -9,24 +9,39 @@
 # RUN cd frontend && npm install && npm run build
 # CMD ["npm", "run", "serve"]
 
+# Dockerfile pour Shopify App avec frontend + backend
+
 FROM node:18-alpine
 
+# Variables d'environnement Shopify
 ARG SHOPIFY_API_KEY
 ENV SHOPIFY_API_KEY=$SHOPIFY_API_KEY
 
+# Exposer le port backend
 EXPOSE 8081
+
+# Définir le dossier de travail
 WORKDIR /app
 
-# Copier seulement le backend pour npm install initial
-COPY web/backend/package*.json ./backend/
-RUN cd backend && npm install
+# Copier tout le backend et frontend
+COPY web/backend ./backend
+COPY web/frontend ./frontend
 
-# Copier tout le reste
-COPY web/ .
+########################
+# Installer backend
+########################
+WORKDIR /app/backend
+RUN npm install
 
-# Installer et builder le frontend
-RUN cd frontend && npm install && npm run build
+########################
+# Installer et build frontend
+########################
+WORKDIR /app/frontend
+RUN npm install
+RUN npm run build
 
-# Lancer le backend
+########################
+# Lancer le backend (Node.js)
+########################
 WORKDIR /app/backend
 CMD ["npm", "run", "serve"]
